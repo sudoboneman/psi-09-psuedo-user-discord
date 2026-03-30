@@ -57,7 +57,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    print(f"DEBUG RECV: [{message.guild}] {message.author.name}: {message.content}")
     # 1. Safety: Ignore yourself and other bots to prevent loops
     if message.author.id == bot.user.id or message.author.bot:
         return
