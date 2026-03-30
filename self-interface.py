@@ -36,7 +36,12 @@ def run_web_server():
 
 # --- Discord Self-Bot Configuration ---
 # self_bot=True tells the library to use User-Account headers
-bot = commands.Bot(command_prefix="!", self_bot=True, chunk_guilds_at_startup=False)
+bot = commands.Bot(
+    command_prefix="!", 
+    self_bot=True, 
+    guild_subscriptions=True,     # CRITICAL: Forces Discord to send server messages
+    chunk_guilds_at_startup=True  # Helps the bot remember who is in the server
+)
 
 http_session = None
 
@@ -52,6 +57,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    print(f"DEBUG RECV: [{message.guild}] {message.author.name}: {message.content}")
     # 1. Safety: Ignore yourself and other bots to prevent loops
     if message.author.id == bot.user.id or message.author.bot:
         return
