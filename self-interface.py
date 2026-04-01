@@ -94,7 +94,7 @@ async def on_message(message):
         "group_name": server_name,         # Unifies the whole server
         "channel": channel_name,           # Passed as context metadata
         "tagged_users": tagged_users[:3],
-        "platform": "discord_selfbot"
+        "platform": "discord"
     }
 
     # 5. Routing Path
