@@ -53,7 +53,7 @@ async def get_http_session():
 async def on_ready():
     # Stealth mode
     await bot.change_presence(status=discord.Status.invisible)
-    logger.info(f"DATA FUNNEL OPEN: Logged in as {bot.user.name}")
+    logger.info(f"DATA FUNNEL OPEN: Logged in as {bot.user.name} (DMs Disabled)")
 
 @bot.event
 async def on_message(message):
@@ -61,18 +61,19 @@ async def on_message(message):
     if message.author.id == bot.user.id or message.author.bot:
         return
 
-    # 1. Local Context Check (To decide if we wait for an API response)
-    is_dm = isinstance(message.channel, discord.DMChannel)
-    is_mentioned = bot.user in message.mentions
-    is_active_trigger = is_dm or is_mentioned
+    # --- ANTI-DETECTION DM BLOCK ---
+    # Instantly drop all Direct Messages to prevent detection and save API tokens
+    if isinstance(message.channel, discord.DMChannel):
+        return
 
-    # 2. Group Name Formatting (Matches engine's logic exactly)
-    if is_dm:
-        group_name = "private_chat"
-    else:
-        server_name = str(message.guild.name) if message.guild else "Unknown Server"
-        channel_name = getattr(message.channel, "name", "unknown")
-        group_name = f"{server_name} | #{channel_name}"
+    # 1. Local Context Check 
+    is_mentioned = bot.user in message.mentions
+    is_active_trigger = is_mentioned
+
+    # 2. Group Name Formatting (Only servers now)
+    server_name = str(message.guild.name) if message.guild else "Unknown Server"
+    channel_name = getattr(message.channel, "name", "unknown")
+    group_name = f"{server_name} | #{channel_name}"
 
     # 3. Extract Tags (Ignored on passive to save CPU)
     tagged_users = []
@@ -85,7 +86,7 @@ async def on_message(message):
                     "display_name": getattr(user, "display_name", user.name)
                 })
     
-    # 4. Clean Payload (No force_reply needed, backend handles it)
+    # 4. Clean Payload
     payload = {
         "message": message.content,
         "sender_id": str(message.author.id),
