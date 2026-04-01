@@ -70,12 +70,11 @@ async def on_message(message):
     is_mentioned = bot.user in message.mentions
     is_active_trigger = is_mentioned
 
-    # 2. Group Name Formatting (Only servers now)
-    server_name = str(message.guild.name) if message.guild else "Unknown Server"
+    # 2. Group Name Formatting (The Server is the Group)
+    server_name = str(message.guild.name) if message.guild else "Private"
     channel_name = getattr(message.channel, "name", "unknown")
-    group_name = f"{server_name} | #{channel_name}"
 
-    # 3. Extract Tags (Ignored on passive to save CPU)
+    # 3. Extract Tags
     tagged_users = []
     if is_active_trigger:
         for user in message.mentions:
@@ -86,13 +85,14 @@ async def on_message(message):
                     "display_name": getattr(user, "display_name", user.name)
                 })
     
-    # 4. Clean Payload
+    # 4. Clean Payload (Split group and channel)
     payload = {
         "message": message.content,
         "sender_id": str(message.author.id),
         "username": message.author.name,
         "display_name": message.author.display_name,
-        "group_name": group_name,
+        "group_name": server_name,         # Unifies the whole server
+        "channel": channel_name,           # Passed as context metadata
         "tagged_users": tagged_users[:3],
         "platform": "discord_selfbot"
     }
