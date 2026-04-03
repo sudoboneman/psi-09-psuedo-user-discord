@@ -61,8 +61,8 @@ async def on_ready():
             type=discord.ActivityType.playing,
             name="PSI-09",
             application_id=int(app_id),
-            details="",
-            state="profiling engine active",
+            details="CORE: NOMINAL",
+            state="",
             
             # Your custom July 2025 timestamp
             timestamps={"start": 1753857600 * 1000}, 
