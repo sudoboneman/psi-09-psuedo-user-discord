@@ -59,17 +59,17 @@ async def on_ready():
         # NOTE: Buttons removed. Assets will only show if uploaded to Discord Dev Portal.
         activity = discord.Activity(
             type=discord.ActivityType.playing,
-            name="PSI-09 ECOSYSTEM",
+            name="PSI-09",
             application_id=int(app_id),
             details="",
-            state="All systems NOMINAL",
+            state="profiling engine active",
             
             # Your custom July 2025 timestamp
             timestamps={"start": 1753857600 * 1000}, 
             
             assets={
                 "large_image": "logo",   # Changed to match your Dev Portal upload
-                "large_text": "ongoing experimentation",
+                "large_text": "",
                 "small_image": "avatar", # Changed to match your Dev Portal upload
                 "small_text": "github.com/sudoboneman"
             }
