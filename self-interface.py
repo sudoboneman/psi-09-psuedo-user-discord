@@ -11,6 +11,7 @@ import random
 import traceback
 import logging
 import sys
+import time
 from dotenv import load_dotenv
 
 # Configure Logging
@@ -51,9 +52,33 @@ async def get_http_session():
 
 @bot.event
 async def on_ready():
-    # Stealth mode
-    await bot.change_presence(status=discord.Status.invisible)
-    logger.info(f"DATA FUNNEL OPEN: Logged in as {bot.user.name} (DMs Disabled)")
+    app_id = os.getenv('APPLICATION_ID')
+    
+    if app_id:
+        # Create the Rich Presence Activity
+        # NOTE: Buttons removed. Assets will only show if uploaded to Discord Dev Portal.
+        activity = discord.Activity(
+            type=discord.ActivityType.playing,
+            name="PSI-09 Ecosystem",
+            application_id=int(app_id),
+            details="Developing Core v2.1",
+            state="Mining Data | Branch: main",
+            timestamps={"start": 1753857600 * 1000}, # Restored to July 30, 2025
+            assets={
+                "large_image": "icon",   # Must exist in Dev Portal
+                "large_text": "PSI-09 Ecosystem",
+                "small_image": "avatar", # Must exist in Dev Portal
+                "small_text": "sudoboneman"
+            }
+        )
+        
+        # DND is slightly safer than Online, looks like you're "busy coding"
+        await bot.change_presence(status=discord.Status.dnd, activity=activity)
+        logger.info(f"DATA FUNNEL OPEN: Logged in as {bot.user.name} (Custom RPC Active)")
+    else:
+        # Fallback to stealth if no APP_ID is provided
+        await bot.change_presence(status=discord.Status.invisible)
+        logger.info(f"DATA FUNNEL OPEN: Logged in as {bot.user.name} (Stealth Mode)")
 
 @bot.event
 async def on_message(message):
@@ -62,7 +87,6 @@ async def on_message(message):
         return
 
     # --- ANTI-DETECTION DM BLOCK ---
-    # Instantly drop all Direct Messages to prevent detection and save API tokens
     if isinstance(message.channel, discord.DMChannel):
         return
 
@@ -70,11 +94,12 @@ async def on_message(message):
     is_mentioned = bot.user in message.mentions
     is_active_trigger = is_mentioned
 
-    # 2. Group Name Formatting (The Server is the Group)
-    server_name = str(message.guild.name) if message.guild else "Private"
+    # 2. Group Name Formatting (Only servers now)
+    server_name = str(message.guild.name) if message.guild else "Unknown Server"
     channel_name = getattr(message.channel, "name", "unknown")
+    group_name = f"{server_name} | #{channel_name}"
 
-    # 3. Extract Tags
+    # 3. Extract Tags (Ignored on passive to save CPU)
     tagged_users = []
     if is_active_trigger:
         for user in message.mentions:
@@ -85,16 +110,15 @@ async def on_message(message):
                     "display_name": getattr(user, "display_name", user.name)
                 })
     
-    # 4. Clean Payload (Split group and channel)
+    # 4. Clean Payload
     payload = {
         "message": message.content,
         "sender_id": str(message.author.id),
         "username": message.author.name,
         "display_name": message.author.display_name,
-        "group_name": server_name,         # Unifies the whole server
-        "channel": channel_name,           # Passed as context metadata
+        "group_name": group_name,
         "tagged_users": tagged_users[:3],
-        "platform": "discord"
+        "platform": "discord_selfbot"
     }
 
     # 5. Routing Path
@@ -110,7 +134,7 @@ async def on_message(message):
         async with message.channel.typing():
             reply = await send_to_backend(payload, wait_for_reply=True)
             
-            if reply: # Backend will return "" if it decides not to reply
+            if reply: 
                 type_speed = min(max(len(reply) * 0.07, 2.0), 8.0)
                 await asyncio.sleep(type_speed + random.uniform(0.5, 1.5))
                 await message.channel.send(reply)
@@ -127,7 +151,6 @@ async def send_to_backend(payload, wait_for_reply=False):
             
         session = await get_http_session()
         
-        # 480s for active roasts, 15s for passive mining drops
         timeout_limit = 480 if wait_for_reply else 15 
         
         async with session.post(url, json=payload, headers=headers, timeout=timeout_limit) as resp:
