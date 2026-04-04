@@ -56,20 +56,18 @@ async def on_ready():
     
     if app_id:
         # Create the Rich Presence Activity
-        # NOTE: Buttons removed. Assets will only show if uploaded to Discord Dev Portal.
         activity = discord.Activity(
             type=discord.ActivityType.playing,
-            name="PSI-09",
+            name="KERNEL_0",
             application_id=int(app_id),
-            state="CORE: Nominal",
+            state="Uptime:",
             
             # Your custom July 2025 timestamp
             timestamps={"start": 1753857600 * 1000}, 
             
             assets={
-                "large_image": "logo",   # Changed to match your Dev Portal upload
-                "small_image": "avatar", # Changed to match your Dev Portal upload
-                "small_text": "github.com/sudoboneman"
+                "large_image": "avatar", # Changed to match your Dev Portal upload
+                "large_text": "github.com/sudoboneman"
             }
         )
         
