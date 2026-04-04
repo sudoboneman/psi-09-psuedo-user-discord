@@ -61,15 +61,13 @@ async def on_ready():
             type=discord.ActivityType.playing,
             name="PSI-09",
             application_id=int(app_id),
-            details="CORE: NOMINAL",
-            state="",
+            state="CORE: Nominal",
             
             # Your custom July 2025 timestamp
             timestamps={"start": 1753857600 * 1000}, 
             
             assets={
                 "large_image": "logo",   # Changed to match your Dev Portal upload
-                "large_text": "",
                 "small_image": "avatar", # Changed to match your Dev Portal upload
                 "small_text": "github.com/sudoboneman"
             }
